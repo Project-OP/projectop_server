@@ -31,7 +31,7 @@ export class Value{
     public static v_J       =   new Value("Jack","J",11);
     public static v_Q       =   new Value("Queen","Q",12);
     public static v_K       =   new Value("King","K",13);
-    public static v_A       =   new Value("Ace","A",1);
+    public static v_A       =   new Value("Ace","A",14,1);
 
 
     name: string;
