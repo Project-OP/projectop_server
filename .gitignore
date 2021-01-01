@@ -106,3 +106,4 @@ dist
 /build
 /mkdocker.bat
 /app/app.zip
+/static
