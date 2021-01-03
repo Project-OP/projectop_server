@@ -133,6 +133,11 @@ export class TableImpl extends TableBase implements ITable{
             this.Data.player_turn = next;
             this.Data.turn_in_round++;
             
+            if (this.seats[this.Data.player_turn].roundTurn.sitout_next_turn){
+                this.seats[this.Data.player_turn].roundTurn.sitout = true;
+                this.seats[this.Data.player_turn].roundTurn.sitout_next_turn = false;
+                await this.Turn(this.seats[this.Data.player_turn].player, Action.fold,0);
+            }
             
             return;
         }
@@ -227,6 +232,7 @@ export class TableImpl extends TableBase implements ITable{
             await this.Turn(p.sessId, Action.fold);
         }
         const [s, n] = this.getSeat(p.sessId);
+        s.roundTurn.join_next_round = false;
         s.roundTurn.sitout_next_turn = true;
     }
     async Sitin(p: Player): Promise<void> {
