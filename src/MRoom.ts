@@ -242,9 +242,13 @@ export class MRoom{
             }
         });
 
+        const room = this;
         try{   
             await MPlayer.EditBySessionId(sessid,function(p: Player){
-                p.roomId = "";
+                if (p.roomId == room.id){
+                    p.roomId = "";
+                }
+
                 return p;
             });
 
