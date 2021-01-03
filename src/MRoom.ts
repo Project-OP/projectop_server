@@ -84,6 +84,17 @@ export class MRoom{
     }
 
 
+    public NudgeTurn(){
+        try{
+            this.seats.filter(v=>v != null).forEach(v=>{
+                MPlayer.Notify(v.player, "Hey "+this.table.Data.player_turn);            
+            })
+            
+        }catch(e){
+            console.log(e);
+        }
+        
+    }
 
     public SetAdmin(p:Player,sessid_promote:string, all:boolean){
 

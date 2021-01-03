@@ -47,7 +47,7 @@ export class MPlayer{
     }
 
 
-    static Notify(sid: string): void{
+    static Notify(sid: string, msg = "Update"): void{
         if (!this.heartbeats){
             console.log("error, heartbeat is null");
         }else{
@@ -61,7 +61,7 @@ export class MPlayer{
                     console.log("error, heartbeat ws is null");
                 }else{
                     try{
-                        ws.send("Update");                    
+                        ws.send(msg);                    
                     }catch(e){
                         console.log()
                     }

@@ -11,6 +11,7 @@ import {RequestHandler} from "./RequestHandler";
 import {Player} from "./data/Player";
 import { MDeck } from "./MDeck";
 import { IllegalOperationError } from "./IllegalOperationError";
+import { isConstTypeReference } from "typescript";
 let ws = require('express-ws')
 
 
@@ -144,7 +145,15 @@ app.get('/game/id/:uuid', (req, res) => {
      
 })
 
+app.get('/game/id/:uuid/notifyactive/', (req, res) => {
+  const id = req.params.uuid;
+  console.log("recv nudge");
+  const room = requestHandler.GetRoom(id);
+  room.NudgeTurn();
+  //const roominfo = room.RoomInfo(player);
+  res.send("");
 
+})
 
 app.get('/game/id/:uuid/join/:name', (req, res) => {
   const id = req.params.uuid;
