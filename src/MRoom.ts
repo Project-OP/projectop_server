@@ -157,7 +157,7 @@ export class MRoom{
         if (this.player.includes(p.sessId)){
             throw new IllegalOperationError("You cannot join","You are already in this room");
         }
-
+          
         if (p.roomId != ""){
             
             throw new IllegalOperationError("You cannot join","You are already in this room: "+p.roomId);

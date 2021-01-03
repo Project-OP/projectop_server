@@ -90,10 +90,6 @@ export class MRooms{
             return null;
         }
         const elem = this.rooms.roomsActive[id];
-        if (elem.IsEmpty && elem.AgeCreated > 60000){
-            this.Purge(id);
-            throw new IllegalOperationError("cannot get room", "room has been delete");
-        }
         return elem;
         
     }
