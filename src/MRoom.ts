@@ -365,7 +365,26 @@ export class MRoom{
     }
     async NotifyClients(omit: string, skipSessionCheck = true): Promise<void>{
         //console.log("Updating all clients");
+        /*
+        try{
+            const p = await MPlayer.BySessionId(omit);
+            console.log("notify omit:"+p.name)
+        }catch(e){
+            //await this.Kick(sid,"session invalid");
+            console.log("error notify player, session invalid")
+        }
+        */
+
         for(const sid of this.player){
+            /*
+            try{
+                const p = await MPlayer.BySessionId(sid);
+                console.log("notify "+p.name)
+            }catch(e){
+                //await this.Kick(sid,"session invalid");
+                console.log("error notify player, session invalid")
+            }
+            */
             // TODO is session valid?
             /*
             if (!skipSessionCheck){
