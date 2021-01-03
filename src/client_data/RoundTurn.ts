@@ -7,6 +7,7 @@ export class RoundTurn{
     bets_placed = 0;
     join_next_round = false;
     sitout_next_turn = false;
+    round_action = "";
     
 
 }

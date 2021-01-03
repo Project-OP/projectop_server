@@ -47,6 +47,7 @@ export class TableImpl extends TableBase implements ITable{
         }else{
             console.log("Player "+seat.name+" "+action+"s");
         }
+        let act = "";
 
         switch(action){
 
@@ -58,6 +59,7 @@ export class TableImpl extends TableBase implements ITable{
                 if (amount == seat.money){
                     // all in
                     console.log(seat.name, "goes all in");
+                    act = "went all in";
                     seat.roundTurn.allin = true;
                 }
                 
@@ -69,15 +71,36 @@ export class TableImpl extends TableBase implements ITable{
                 if (!Number.isInteger(amount)){
                     throw new IllegalOperationError("Cannot place bet", "you can only bet whole numbers");
                 }
+                if (amount == 0){
+                    act = "checked";
+                }else if (amount <= this.Data.current_min_bet){
+                    act = "called";
+                }
+                if (amount > this.Data.current_min_bet){
+
+                    if (this.Data.turn_in_round == 0){
+                        act = "bet"
+                    }else{
+                        act = "raised";
+                    }
+                    
+                }
+                if (amount == seat.money){
+                    // all in
+                    act = "went all in with";
+                }
+                act = act + " " + amount;
                 this.SetMoney(seat,amount);
             break;
 
             case Action.fold:
+                act = "folded";
                 seat.roundTurn.fold = true;
                 
             break;
         }
         
+        seat.roundTurn.round_action = act;
         seat.roundTurn.done = true;
         seat.roundTurn.bets_placed++;
 
@@ -168,7 +191,6 @@ export class TableImpl extends TableBase implements ITable{
         this.seats.forEach((s,i)=>{
             if (s != null && !all_allin){
 
-                
                 s.roundTurn.bets_placed = 0;
                 s.roundTurn.done = false;
                 s.roundTurn.amount = 0;
@@ -246,6 +268,17 @@ export class TableImpl extends TableBase implements ITable{
     }
     async NewGame(initial: boolean, sessid: string): Promise<void> {
         
+        
+        const playerWithMoney = this.seats.filter(v=>{
+            return v && v.money > 0;
+        });
+
+        if (playerWithMoney.length < 2){
+            initial = true;
+        }
+        
+
+        
         if (initial){
             this.Data.current_bb = 2;
             this.Data.current_sb = 1;
@@ -264,7 +297,8 @@ export class TableImpl extends TableBase implements ITable{
                 v.cards = [];
                 v.hand = null;
                 v.payment_in_round = 0;
-                
+                v.roundTurn.round_action = "";
+
                 const t = v.roundTurn;
                 t.allin = false;
                 t.amount = 0;
@@ -282,6 +316,9 @@ export class TableImpl extends TableBase implements ITable{
 
                 if (initial){
                     v.money = this.Data.startBalance;    
+                    t.join_next_round = false;
+                    t.sitout = false;
+                    t.sitout_next_turn = false;
 
                 }
 
