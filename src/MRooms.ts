@@ -6,7 +6,8 @@ import { IllegalOperationError } from "./IllegalOperationError";
 export class MRooms{
     //max = 100; // max of 100 rooms allowed
     max = 400; // max of 100 rooms allowed
-    purgeTime = 3600000; //3600000 = 1h // purge after 1h of no update
+    //purgeTime = 3600000; //3600000 = 1h // purge after 1h of no update
+    
     rooms: Rooms;
     constructor(){
         this.rooms = new Rooms();
@@ -14,9 +15,9 @@ export class MRooms{
     Create(sessid:string){
         //const size = Helper.size(this.roomsCreated);
         if (this.rooms.size >= this.max){
-            this.Purge();
         }
-     
+        this.Purge();
+        
     
         if (this.rooms.size >= this.max){
             throw new IllegalOperationError("Cannot create room",  "Maximum of "+this.max+ " rooms created.");
@@ -63,7 +64,18 @@ export class MRooms{
             return;
         }
         for (const [key, value] of Object.entries(this.rooms.roomsActive)) {
-            if (value.IsEmpty && value.AgeCreated > 60000){
+            const r = this.rooms.roomsActive[key];
+            /*
+            r.seats.filter(v=>{
+                v.player
+            });
+            r.player.forEach(v=>{
+                
+            });
+            */
+            //value.latestHeartbeat
+            
+            if ((value.IsEmpty || value.lastGameUpdate > 120000) && value.AgeCreated > 120000){
                 this.rooms.roomsActive[key].ClearAll();
                 delete this.rooms.roomsActive[key];
                 this.rooms.size--;

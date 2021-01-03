@@ -13,8 +13,8 @@ class Item{
 export class Heartbeat{
 
     wss: {[key: string]: Item} = {};
-    purgeInterval = 60000;//10000;//60000; // TODO set so 60000 or higher
-    expireTime = 60000;
+    purgeInterval = 100000; //
+    expireTime = 100000; // 100s
     room: MRooms;
     disconnListener: (p: Player)=>void;
     
@@ -45,19 +45,20 @@ export class Heartbeat{
         },this.purgeInterval);
     }
 
-    async LastHeartbeat(sessId: string): Promise<number>{
+    async UpdateHBPlayer(sessId: string):Promise<void>{
         /*
         if (!this.hasKey(sessId)){
             return -1;
         }
         */
         try{
-            const p = await MPlayer.BySessionId(sessId);
-            const e = p.heartbeat;
-
-            return Date.now() - e;    
+            const p = await MPlayer.EditBySessionId(sessId, (v)=>{
+                v.heartbeat = Date.now();
+                return v;
+            });
+            MPlayer.UpdateRoomHB(p);
         }catch(e){
-            return 0;
+            
         }
         
 
@@ -71,6 +72,7 @@ export class Heartbeat{
         }
         const now = Date.now();
         const del = [];
+        
         for (const s of Object.keys(this.wss)){
             const v = this.wss[s];
             const diff = now - v.lastPing;
@@ -91,17 +93,25 @@ export class Heartbeat{
 
     Beat(ws: WebSocket, req: Request, msg): void{
         const sess = req.session.id;
+        this.UpdateHBPlayer(sess);
         this.check(ws, req, sess);
+        
     }
 
 
     async Close(ws: WebSocket, req: Request, msg): Promise<void>{
         try{
-
-            if (req.session['player']){
-                console.log("remote end closed, not deleting!");
-                //await this.NotifyDisconnect(req.session['player'].sessId, "heartbeat socket closed on remote end");
-            }
+            setTimeout(()=>{
+                const p = req.session['player'];
+                if (p){
+                    if (!this.wss[p.sessId]){
+                        this.NotifyDisconnect(req.session['player'].sessId, "heartbeat socket closed on remote end");
+                    }else{
+                        console.log("player disconnected but reconnected with new ws");
+                    }
+                }
+                
+            },30000);
             
             const e = req.session?.id;
             

@@ -30,6 +30,9 @@ export class MPlayer{
 
             MPlayer.memoryStore.get(sess, function(elem, ses){
                 if (ses){
+                    if (!ses['player']){
+                        return reject();
+                    }
                     const edited = p(ses['player']);
                     ses['player'] = edited;
                     MPlayer.memoryStore.set(sess,ses, function(){
@@ -112,6 +115,13 @@ export class MPlayer{
             await room.Kick(p.sessId, "user closed heartbeat connection");
 
         });
+    }
+
+    static UpdateRoomHB(p: Player){
+        const r = this.rooms.Get(p.roomId);
+        if (r){
+            r.lastGameUpdate = Date.now();  
+        }
     }
     
 /*
