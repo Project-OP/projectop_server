@@ -242,20 +242,9 @@ export class MRoom{
             }
         });
         
-        try{   
-            await MPlayer.EditBySessionId(sessid,function(p: Player){
-                p.roomId = "";
-                return p;
-            });
-
-        }catch(e){
-            //console.log(e);
-            //no player = no problem
-        }
         rm(delitem,this.seats,true);
         rm(sessid,this.player);
-        await this.Table.UpdatePlayerList(sessid);
-
+        
         this.NotifyClients(sessid);
 
 
