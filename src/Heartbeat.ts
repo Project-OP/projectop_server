@@ -13,8 +13,8 @@ class Item{
 export class Heartbeat{
 
     wss: {[key: string]: Item} = {};
-    purgeInterval = 100000; //
-    expireTime = 100000; // 100s
+    purgeInterval = 720000; //
+    expireTime = 360000; // 100s
     room: MRooms;
     disconnListener: (p: Player)=>void;
     
@@ -111,7 +111,7 @@ export class Heartbeat{
                     }
                 }
                 
-            },30000);
+            },180000);
             
             const e = req.session?.id;
             
