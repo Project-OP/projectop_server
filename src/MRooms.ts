@@ -74,8 +74,10 @@ export class MRooms{
             });
             */
             //value.latestHeartbeat
-            
-            if ((value.IsEmpty || value.lastGameUpdate > 120000) && value.AgeCreated > 120000){
+            const now = Date.now();
+            const update = (now - value.lastGameUpdate) > 120000;
+            //console.log("purge check",key,value.IsEmpty , (now - value.lastGameUpdate),value.lastGameUpdate ,value.AgeCreated);
+            if ((value.IsEmpty || update) && value.AgeCreated > 120000){
                 this.rooms.roomsActive[key].ClearAll();
                 delete this.rooms.roomsActive[key];
                 this.rooms.size--;
