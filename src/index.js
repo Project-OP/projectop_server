@@ -99,7 +99,8 @@ app.ws('/heartbeat', function(ws, req) {
 app.get('/game/new/:name', (req, res) => {
     
     let player = checkSetPlayer(req,res);
-    const newRoom = rooms.Create(player.sessId);  
+    const newRoom = rooms.Create(player.sessId);
+      
     if (player.roomId != ""){
       const r = rooms.Get(player.roomId);
       if (r == null){
