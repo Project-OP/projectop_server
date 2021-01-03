@@ -117,12 +117,11 @@ app.get('/game/new/:name', (req, res) => {
 
  
 })
+/*
 app.get('/app', (req, res) => {
-    
   res.sendFile(base+"/app/app.zip");
-
-
 })
+*/
 
 
 
