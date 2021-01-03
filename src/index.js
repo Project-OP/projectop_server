@@ -56,6 +56,8 @@ app.use(expressSanitizer());
 const base = __dirname.substr(0,__dirname.lastIndexOf(path.sep));
 const static_folder = base+"/static";
 app.use('/', express.static(static_folder));
+app.use('/lobby', express.static(static_folder));
+app.use('/table/*', express.static(static_folder));
 
 
 //app.use('/static', express.static(__dirname + '/static'));
