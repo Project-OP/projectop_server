@@ -5,10 +5,13 @@ import { MDeck } from "./MDeck";
 
 export class CardSolver{
 
+    permuts7: Array<Array<number>> = []    
 
-    permuts: Array<Array<number>> = []    
+    permuts6: Array<Array<number>> = []    
     constructor(){
-        this.permuts = allPermuts();
+        this.permuts6 = allPermuts(true);
+        this.permuts7 = allPermuts();
+        
     }
 
     
@@ -18,8 +21,7 @@ export class CardSolver{
         for(const p of player){
             const bighand = new BigHand (p.owner, [].concat(table,p.cards));
             bighand.cards.sort(Card.GetComparator());
-            
-            const playerHand = this.GetBest5Of7(bighand);
+            const playerHand = this.GetBest5(bighand);
             final.push(playerHand);
         }
         if (dontorder){
@@ -35,14 +37,24 @@ export class CardSolver{
         return final;
     }
 
-    GetBest5Of7(bighand: BigHand): Hand{
+    GetBest5(bighand: BigHand): Hand{
         const playerHand:Hand[] = [];
-        for(const permut of this.permuts){
-            let  hand = bighand.GetHand(permut);
-            hand = this.EvalHand(hand);
-            playerHand.push(hand);
+        let pa = this.permuts7;
+        if (bighand.cards.length == 6){
+            pa = this.permuts6;
         }
-        
+        if (bighand.cards.length < 6){
+            let hand = this.EvalHand(new Hand(bighand.owner, bighand.cards));
+            playerHand.push(hand);
+        }else{
+            for(const permut of pa){
+                let  hand = bighand.GetHand(permut);            
+                hand = this.EvalHand(hand);
+
+                playerHand.push(hand);
+            }    
+        }
+               
 
         playerHand.sort(Hand.GetComparator());
         const best = playerHand[0];
@@ -53,17 +65,19 @@ export class CardSolver{
     EvalHand(hand: Hand): Hand{
 
         hand.cards = Array.from(hand.cards);
-        hand.cards.sort(Card.GetComparator());
-        
         // straight
         const acelow =  hand.query(Value.v_2).length != 0; // if there is a 2, we use the ace as 1
-        //console.log("isacelow",acelow);
+        hand.cards.sort(Card.GetComparator(acelow));
+
         let isStraight = false;
         for (let i = 0; i < hand.cards.length-1; i++){
             const cur = hand.cards[i].ValueAsInt(acelow);
+            if (!hand.cards[i+1]){
+                break;
+            }
             const next = hand.cards[i+1].ValueAsInt(acelow);
             //console.log("cur",cur);
-
+            
             if (cur != next + 1){
                 isStraight = false;
                 break;
@@ -71,12 +85,15 @@ export class CardSolver{
             
             isStraight = true;
         }
-        
         // check flush
-        const isFlush = hand.cards.every((v,i) => {
+        let isFlush = hand.cards.filter(v=>v != null && v != undefined).every((v,i) => {
            return v.color ==  hand.cards[0].color;
         });
 
+        if (hand.cards.length < 5){
+            isFlush = false;
+            isStraight = false;
+        }
        
 
         // check pairs, triple, 4 of a kind
@@ -86,9 +103,11 @@ export class CardSolver{
         for (let i = 1; i < hand.cards.length; i++){
             const cur = hand.cards[i];
             const last = hand.cards[i-1];
+            if (!cur){
+                break;
+            }
             if (cur.ValueAsInt() == last.ValueAsInt()){
                 cumsum++;
-                
                 consecutives[i-1] = 1;
                 
                 
@@ -98,7 +117,6 @@ export class CardSolver{
             consecutives[i]=cumsum;
             
         }
-        
         // indices
         const i4 = consecutives.indexOf(4);
         const i3 = consecutives.indexOf(3);
@@ -273,15 +291,13 @@ class BigHand{
 
     GetHand(indexPermutArray: Array<number> ): Hand{
         //
-        const handCards = [
-            this.cards[indexPermutArray[0]],
-            this.cards[indexPermutArray[1]],
-            this.cards[indexPermutArray[2]],
-            this.cards[indexPermutArray[3]],
-            this.cards[indexPermutArray[4]]
+        const handCards:Card[] = [];
+        for (let i = 0; i < 5; i++){
+            handCards.push(this.cards[indexPermutArray[i]]);
 
-        ]
-        return new Hand(this.owner,handCards);
+        }
+        const h = new Hand(this.owner,handCards);
+        return h;
     }
 
 }
@@ -344,14 +360,20 @@ export class Hand{
         if (!c && !v){
             return [];
         }
+        
         return this.cards.filter((card,i)=>{
-            if (c && v){
-                return card.color == c && card.value == v;
-            }else if (c){
-                return card.color == c;
+            if (card){
+                if (c && v){
+                    return card.color == c && card.value == v;
+                }else if (c){
+                    return card.color == c;
+                }else{
+                    return card.value == v;   
+                }
             }else{
-                return card.value == v;   
+                return [];
             }
+            
             
         });
     }
@@ -373,7 +395,7 @@ export class Hand{
             case HandValues.Flush:
                 return `${who}: ${type} of ${this.ValueCards[0].color}, ${this.ValueCards[0].value} high`;
             case HandValues.Straight:
-                return `${who}: ${type}, ${this.ValueCards[0].value} high`;                                                                
+                return `${who}: ${type}, ${this.ValueCards[0].toString()} high`;                                                                
             case HandValues.Straightflush:
                 return `${who}: ${type}, ${this.ValueCards[0].value} high`;                                                                
             case HandValues.Fullhouse:
@@ -388,6 +410,15 @@ export class Hand{
 
     static GetComparator(){
         return (a: Hand, b: Hand) => {
+            if (!a && !b){
+                return 0;
+            }
+            if (!a){
+                return 1;
+            }
+            if (!b){
+                return -1;
+            }
             const primaryComparator = HandValues.GetComparator();
             const primary = primaryComparator(a.HandType, b.HandType);
             if (primary != 0){
@@ -395,14 +426,35 @@ export class Hand{
                 return primary;
             }
             for (let i = 0; i < a.ValueCards.length; i++){
-                const cmp = b.ValueCards[i].ValueAsInt() - a.ValueCards[i].ValueAsInt();
+                let va = 0;
+                let vb = 0;
+                if (a.ValueCards[i]){
+                    va = a.ValueCards[i].ValueAsInt();
+                }
+                if (b.ValueCards[i]){
+                    vb = b.ValueCards[i].ValueAsInt();
+                }
+
+                
+                const cmp = vb - va;
                 if (cmp != 0){
                     
                     return cmp;
                 }
             }
             for (let i = 0; i < a.Highcards.length; i++){
-                const cmp = b.Highcards[i].ValueAsInt() - a.Highcards[i].ValueAsInt();
+                let va = 0;
+                let vb = 0;
+                if (a.Highcards[i]){
+                    va = a.Highcards[i].ValueAsInt();
+                }
+                if (b.Highcards[i]){
+                    vb = b.Highcards[i].ValueAsInt();
+                }
+
+                
+                const cmp = vb - va;
+                
                 if (cmp != 0){
                     
                     return cmp;
@@ -459,20 +511,35 @@ class HandValues{
 // test triple
 // test pair count; has pair, remove, has pair
 // test 
-function allPermuts(){
-    const all = [0,1,2,3,4,5,6];
+function allPermuts(outof6 = false){
+    let len =7;
+    if (outof6){
+        len = 6;
+    }
+    const all = new Array(len);
+
+    for(let i = 0; i < all.length; i++){
+        all[i]=i;
+    }
     const removes = [];
     for (let i0 = 0; i0 < all.length; i0++){
-        for (let i1 = i0+1; i1 < all.length; i1++){
-            removes.push([i0,i1]);
+        if (outof6){
+            removes.push(i0);
+        }else{
+            for (let i1 = i0+1; i1 < all.length; i1++){
+                removes.push([i0,i1]);
+            }
         }
+        
     }
     const valids = [];
     for(const rm of removes){
         const cpy = Array.from(all);
 
         cpy.splice(rm[0],1,null);
-        cpy.splice(rm[1],1,null);
+        if(!outof6){
+            cpy.splice(rm[1],1,null);
+        }
         const v = cpy.filter((v,i)=> {
             return v != null; 
         });
@@ -676,10 +743,10 @@ function TestRankHands(){
     //cs.EvalHand(pair1);
     const arr = [flushAce2, flush, pair10, pair1HC,flushAce,pair1];
     arr.sort(Hand.GetComparator());
-    console.log(pair1HC);
+    console.log(arr);
 }
 
-function TestGetBest5Of7(){
+function TestGetBest5(){
     const Fullstack = new BigHand(new Seat(new Player("","Name")), [
             new Card(Color.Clubs,Value.v_3),
             new Card(Color.Hearts,Value.v_7),        
@@ -691,8 +758,8 @@ function TestGetBest5Of7(){
         ]);
 
     const solver = new CardSolver();
-    const hand = solver.GetBest5Of7(Fullstack);
-    console.log("TestGetBest5Of7",hand);
+    const hand = solver.GetBest5(Fullstack);
+    console.log("TestGetBest5",hand);
 }
 
 function  testall(){
@@ -749,24 +816,53 @@ function  CasinoRoyaleTestCase(){
 }
 
 function TestStraightAceTwo(){
-    const Fullstack = new BigHand(new Seat(new Player("","Name")), [
-            new Card(Color.Clubs,Value.v_2),
-            new Card(Color.Hearts,Value.v_3),        
-            new Card(Color.Hearts,Value.v_5),
-            new Card(Color.Spades,Value.v_4),
-            new Card(Color.Spades,Value.v_A),
-            new Card(Color.Spades,Value.v_7),
-            new Card(Color.Spades,Value.v_2),
-        ]);
+
+
+    const center = [
+        new Card(Color.Clubs,Value.v_2),
+        new Card(Color.Hearts,Value.v_3),        
+        new Card(Color.Hearts,Value.v_5),
+        new Card(Color.Hearts,Value.v_7),
+        new Card(Color.Hearts,Value.v_4)
+
+    ];
+
+    const p0 = new PlayerHand(new Seat(new Player("","loser")), [
+        new Card(Color.Clubs,Value.v_A),
+        new Card(Color.Clubs,Value.v_3),
+    ]);
+    const p1 = new PlayerHand(new Seat(new Player("","winner")), [
+        new Card(Color.Clubs,Value.v_6),
+        new Card(Color.Clubs,Value.v_4),
+    ]);
 
     const solver = new CardSolver();
-    const hand = solver.GetBest5Of7(Fullstack);
-    console.log("TestGetBest5Of7",hand);
+    const hand = solver.SolveTable([p0,p1],center);
+    console.log("TestGetBest5:",hand.toString());
 }
 
+
+function TestLessCards(){
+    const p4 = new PlayerHand(new Seat(new Player("","DrEvil")), [
+        new Card(Color.Hearts,Value.v_2),
+        new Card(Color.Hearts,Value.v_3),
+        new Card(Color.Hearts,Value.v_4)
+
+    ]);
+    
+    const player = [p4];
+
+    const center = [
+    ];
+    const cs = new CardSolver();
+    const winner = cs.SolveTable(player,center);
+    const sps = cs.GetSplits(winner);
+    console.log(winner);
+}
+//TestLessCards();
 //TestStraightAceTwo();
 //TestEvalHand();
 //TestRankHands();
-//TestGetBest5Of7();
-//TestGetBest5Of7();
+//TestGetBest5();
+//TestGetBest5();
 //CasinoRoyaleTestCase();
