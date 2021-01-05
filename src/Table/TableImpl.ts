@@ -156,9 +156,9 @@ export class TableImpl extends TableBase implements ITable{
 
             // stay in round, next player
             this.Data.player_turn = next;
-
+ 
             // remove turn action from new player in turn
-            this.seats[this.Data.player_turn].roundTurn.round_action = act;
+            this.seats[this.Data.player_turn].roundTurn.round_action = "";
 
             this.Data.turn_in_round++;
             
