@@ -153,7 +153,13 @@ export class TableImpl extends TableBase implements ITable{
 
             //console.log("player turn after is ",next);
             //next in same round
+
+            // stay in round, next player
             this.Data.player_turn = next;
+
+            // remove turn action from new player in turn
+            this.seats[this.Data.player_turn].roundTurn.round_action = act;
+
             this.Data.turn_in_round++;
             
             if (this.seats[this.Data.player_turn].roundTurn.sitout_next_turn){
@@ -165,12 +171,20 @@ export class TableImpl extends TableBase implements ITable{
             return;
         }
         this.Data.turn_in_round = 0;
-
+        // ############### new betting round (reveal flop/turn/river) ################ //
         //new betting round
         
+        //reset all player turn actions because noone has anything done yet
+        this.seats.forEach(v=>{
+            if (v){
+                v.roundTurn.round_action = "";
+            }
+            
+        });
         
-
-        const all_allin = vs.filter(v=>!v.roundTurn.allin).length < 2;
+        
+        //count everyone that is not all in and not folded, if this is less than 2, round is over
+        const active_players = vs.filter(v=>(!v.roundTurn.allin && !v.roundTurn.fold));
         //const all_allin = 
 
         
@@ -178,7 +192,7 @@ export class TableImpl extends TableBase implements ITable{
  
 
         console.log("NEXT ROUND");
-        if (all_allin){
+        if (active_players.length < 2){
             const reveal = 5 - this.cards_center.length;
             const allin_cards = this.deck.Take(reveal);
             this.cards_center=this.cards_center.concat(allin_cards);
@@ -189,7 +203,7 @@ export class TableImpl extends TableBase implements ITable{
             
         }
         this.seats.forEach((s,i)=>{
-            if (s != null && !all_allin){
+            if (s != null && active_players.length >= 2){
 
                 s.roundTurn.bets_placed = 0;
                 s.roundTurn.done = false;
@@ -204,8 +218,8 @@ export class TableImpl extends TableBase implements ITable{
         
         if (this.Data.is_headsup){
             this.Data.player_turn = this.Data.bbpos;
+            
         }else{
-            // mind that this is wrong!
 
             const next = this.getNextPlayerTurn(this.Data.dealerpos);
 
