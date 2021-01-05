@@ -446,13 +446,12 @@ export class TableImpl extends TableBase implements ITable{
         if (showdownplayer.length == 1){
             const [seat, pos]= this.getSeat(showdownplayer[0].player);
 
-            this.Data.winner_pos = [pos];
-            const sp  = new SidePot([seat],this.Data.pot,[seat]);
-            this.Data.winner_pots = [new Winner_Client(sp,[pos])];
-            this.setMessage(seat.name + " wins by fold", sessid);
-            seat.money+=this.Data.pot;
+            this.Data.winner_pos = [{seat:pos,amount:seat.win}];
             
-            // TODO 
+            
+            this.setMessage(seat.name + " wins by fold", sessid);
+            seat.money += this.Data.pot;
+            
             return;
         }
         for(const seat of playerCanWin){
@@ -463,30 +462,26 @@ export class TableImpl extends TableBase implements ITable{
             
         }
 
-        const sidePots = SidePotCalculator.CalculateSidePots(playerCanWin,playerThatPay, this.cards_center);
+        SidePotCalculator.CalculateSidePots(playerThatPay, this.cards_center);
         
-        
-
+        const winners = playerThatPay.filter(v=>{
+            return v.win > 0;
+        });
         
         let msg = "";
-        sidePots.forEach(v=>{
-           msg += v.toString()+"\n";
+        this.Data.winner_pos = [];
+        const w = winners.forEach(v=>{
+            const [seat, pos] = this.getSeat(v.player);
+            const r = {seat:pos, amount: v.win};
+            this.Data.winner_pos.push(r);
+            msg+=`${seat.name} wins ${seat.win} with ${seat.hand.HandType.info} \n`;
+
         });
-        const winner_c = sidePots.map(v=>{
-            
-            const pos = v.winner.map(vv=>{
-                const [_, ret] = this.getSeat(vv.player);
-                this.Data.winner_pos.push(ret);
-                return ret;
-            });
 
-            const c = new Winner_Client(v,pos);
-            return c;
-        });
-        //console.log(sidePots);
-
-        this.Data.winner_pots = winner_c;
-
+        
+        
+        
+        
         
         this.setMessage(msg, sessid);
 

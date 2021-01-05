@@ -11,7 +11,8 @@ export class Seat{
     roundTurn: RoundTurn;
     hand: Hand;
     payment_in_round = 0;
-    
+    win = 0;
+
     constructor(p: Player){
         this.player = p.sessId;
         this.name = p.name;

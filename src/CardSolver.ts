@@ -37,6 +37,38 @@ export class CardSolver{
         return final;
     }
 
+    public GetWinner(seats: Seat[]): Seat[]{
+        seats.sort(Hand.GetComparatorSeat());
+        const ret:Seat[] = [];
+        if (seats.length < 1){
+            return [];
+        }
+        ret.push(seats[0]); // first elem wins, now are there split pots?
+        if (seats.length < 2){
+            return ret;
+        }
+        for(let i = 0; i < seats.length-1; i++){
+            const cmp = Hand.GetComparator();
+            const wcur = seats[i].hand;
+            const wnxt = seats[i+1].hand;
+
+            const r = cmp(wcur,wnxt);
+            if (r == 0){
+                //split pot
+                if (!ret.includes(seats[i])){
+                    ret.push(seats[i]);
+                }
+                if (!ret.includes(seats[i+1])){
+                    ret.push(seats[i+1]);
+                }
+
+            }else{
+                break;
+            }
+        }
+        return ret;
+    }
+
     GetBest5(bighand: BigHand): Hand{
         const playerHand:Hand[] = [];
         let pa = this.permuts7;
@@ -233,7 +265,7 @@ export class CardSolver{
                 if (!splits.includes(i)){
                     splits.push(i);
                 }
-                if (!splits.includes(i+i)){
+                if (!splits.includes(i+1)){
                     splits.push(i+1);
                 }
 
@@ -337,6 +369,7 @@ export class Hand{
     }
 
     
+    
     public SetValueNonValueByIndexArray(valueCardsIndexArray:Array<number>){
         let nonval = Array.from(this.cards);
         let val = [];
@@ -406,6 +439,62 @@ export class Hand{
                 return `${who}: ${type}: ${this.Highcards.toString()}`;
         }
         
+    }
+
+    static GetComparatorSeat(){
+        return (a: Seat, b: Seat) => {
+            if (!a && !b){
+                return 0;
+            }
+            if (!a){
+                return 1;
+            }
+            if (!b){
+                return -1;
+            }
+            const primaryComparator = HandValues.GetComparator();
+            const primary = primaryComparator(a.hand.HandType, b.hand.HandType);
+            if (primary != 0){
+                
+                return primary;
+            }
+            for (let i = 0; i < a.hand.ValueCards.length; i++){
+                let va = 0;
+                let vb = 0;
+                if (a.hand.ValueCards[i]){
+                    va = a.hand.ValueCards[i].ValueAsInt();
+                }
+                if (b.hand.ValueCards[i]){
+                    vb = b.hand.ValueCards[i].ValueAsInt();
+                }
+
+                
+                const cmp = vb - va;
+                if (cmp != 0){
+                    
+                    return cmp;
+                }
+            }
+            for (let i = 0; i < a.hand.Highcards.length; i++){
+                let va = 0;
+                let vb = 0;
+                if (a.hand.Highcards[i]){
+                    va = a.hand.Highcards[i].ValueAsInt();
+                }
+                if (b.hand.Highcards[i]){
+                    vb = b.hand.Highcards[i].ValueAsInt();
+                }
+
+                
+                const cmp = vb - va;
+                
+                if (cmp != 0){
+                    
+                    return cmp;
+                }
+            }
+            return 0;
+        }
     }
 
     static GetComparator(){
