@@ -84,6 +84,14 @@ export class MRoom{
     }
 
 
+    public SetNextBB(p: Player, amt: number){
+        this.checkAdmin(p.sessId);
+        this.table.Data.nextBBlind = Number.parseInt(""+amt);
+        const sb = Math.floor(amt/2);
+        this.table.Data.nextSBlind = sb;
+        this.setMessage(`changed bb/sb  to ${amt}/${sb}`,p.sessId);
+
+    }
     public NudgeTurn(){
         try{
             this.seats.filter(v=>v != null).forEach(v=>{

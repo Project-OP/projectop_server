@@ -155,6 +155,8 @@ app.get('/game/id/:uuid/notifyactive/', (req, res) => {
 
 })
 
+
+
 app.get('/game/id/:uuid/join/:name', (req, res) => {
   const id = req.params.uuid;
 
@@ -234,6 +236,20 @@ app.get('/game/id/:uuid/admin/set/:amount', (req, res) => {
   res.send(roominfo);
  
 })
+
+app.get('/game/id/:uuid/admin/nextbb/:bb', (req, res) => {
+  const id = req.params.uuid;
+  const bb = req.params.bb;
+  let player = getPlayer(req,res,true);
+
+  const room = requestHandler.GetRoom(id);
+  room.SetNextBB(player, bb);
+  
+  const roominfo = room.RoomInfo(player);
+  res.json(roominfo);
+
+})
+
 app.get('/game/id/:uuid/admin/fold/', async (req, res) => {
   const id = req.params.uuid;
   const room = requestHandler.GetRoom(id);
