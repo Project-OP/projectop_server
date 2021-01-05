@@ -433,13 +433,13 @@ export class TableImpl extends TableBase implements ITable{
 
     private Showdown(sessid: string): void{
         this.Data.player_turn=-1;
-        const vs = Array.from(this.ValidSeats(true,true));
-
+        const playerCanWin = Array.from(this.ValidSeats(true,true));
+        const playerThatPay = Array.from(this.ValidSeats(true,false));
         console.log("SHOWDOWN");
 
 
 
-        const showdownplayer =  vs.filter(v=>{
+        const showdownplayer =  playerCanWin.filter(v=>{
             return !v.roundTurn.fold && !v.roundTurn.sitout;
         });
 
@@ -455,7 +455,7 @@ export class TableImpl extends TableBase implements ITable{
             // TODO 
             return;
         }
-        for(const seat of vs){
+        for(const seat of playerCanWin){
             
             seat.cards.forEach( (v,i) => {
                 v.visible = true;
@@ -463,7 +463,7 @@ export class TableImpl extends TableBase implements ITable{
             
         }
 
-        const sidePots = SidePotCalculator.CalculateSidePots(vs, this.cards_center, this.Data.pot);
+        const sidePots = SidePotCalculator.CalculateSidePots(playerCanWin,playerThatPay, this.cards_center);
         
         
 
@@ -483,7 +483,7 @@ export class TableImpl extends TableBase implements ITable{
             const c = new Winner_Client(v,pos);
             return c;
         });
-        console.log(sidePots);
+        //console.log(sidePots);
 
         this.Data.winner_pots = winner_c;
 

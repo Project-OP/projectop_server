@@ -25,10 +25,24 @@ export class SidePot{
 export class SidePotCalculator{
 
     static solver = new CardSolver();
-    static CalculateSidePots(seats: Seat[], center:Card[], pot: number):SidePot[]{
+    static CalculateSidePots(winCandidates: Seat[],payer: Seat[], center:Card[]):SidePot[]{
         const toSolve = [];
+        // calculate pot
+        // this is not everything that is in it, but my be less:
+        // this case is if the chipleader goes all in, he bets against noone,
+        // the highest bet is too much: [bets].sort(a>b)
 
-        for(const seat of seats){
+        const pots = payer.map(v=>v?.payment_in_round);
+        pots.sort((a,b)=>b-a);
+        if (pots.length > 1){
+            //this is >= 0 because of sorting and represents the amount that is payed too much due to a chipleader all in
+            const overpayed = pots[0] - pots[1]; 
+            pots[0] = pots[0]-overpayed;
+            console.log(`there is ${overpayed} to much in the pot`)
+        }
+        
+        const pot = pots.reduce((a,b)=>a+b);
+        for(const seat of winCandidates){
             
             seat.cards.forEach( (v,i) => {
                 v.visible = true;
@@ -105,7 +119,7 @@ export class SidePotCalculator{
             // if winner is in  winner (winner_of_group)
             // reward them their amount and add them to ignore
             // use sidepots[]
-            const k = Number.parseFloat(g);
+            //            const k = Number.parseFloat(g);
             //const pot = k*sidepot_owner.length;
 
             //console.log("side pot owner player",sidepot_owner.map((v,i)=>{return sidepots[v].name}),"can win",pot,"and compete with",competetors);
@@ -203,7 +217,7 @@ function  SingleWinnerTestCase(){
         new Card(Color.Spades,Value.v_4),
         new Card(Color.Spades,Value.v_A),
     ];
-    const sidepots = SidePotCalculator.CalculateSidePots(player,center, 1000);
+    const sidepots = SidePotCalculator.CalculateSidePots(player,player,center);
     sidepots.forEach(v=>console.log(v.toString()));
 }
 function  CasinoRoyaleTestCase(){
@@ -286,7 +300,7 @@ function  CasinoRoyaleTestCase(){
     
     //console.log(sps);
     console.log("testing case: casino royale");
-    const sidepots = SidePotCalculator.CalculateSidePots(player,center,1000);
+    const sidepots = SidePotCalculator.CalculateSidePots(player,player,center);
     sidepots.forEach(v=>console.log(v.toString()));
 
 
@@ -340,7 +354,7 @@ function  testlossemoneypot(){
     ];
     
     console.log("testing case: loose money");
-    const sidepots = SidePotCalculator.CalculateSidePots(player,center, 32+32+6);
+    const sidepots = SidePotCalculator.CalculateSidePots(player,player,center);
     sidepots.forEach(v=>console.log(v.toString()));
 }
 testlossemoneypot();
