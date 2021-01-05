@@ -291,7 +291,7 @@ export class TableImpl extends TableBase implements ITable{
             initial = true;
         }
         
-
+        
         
         if (initial){
             this.Data.current_bb = 2;
@@ -302,7 +302,7 @@ export class TableImpl extends TableBase implements ITable{
 
         }else{
             this.Data.round++;
-
+            
         }
         
 
@@ -312,7 +312,8 @@ export class TableImpl extends TableBase implements ITable{
                 v.hand = null;
                 v.payment_in_round = 0;
                 v.roundTurn.round_action = "";
-
+                v.win = 0;
+                
                 const t = v.roundTurn;
                 t.allin = false;
                 t.amount = 0;
