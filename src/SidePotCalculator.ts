@@ -25,7 +25,7 @@ export class SidePot{
 export class SidePotCalculator{
 
     static solver = new CardSolver();
-    static CalculateSidePots(seats: Seat[], center:Card[]):SidePot[]{
+    static CalculateSidePots(seats: Seat[], center:Card[], pot: number):SidePot[]{
         const toSolve = [];
 
         for(const seat of seats){
@@ -83,9 +83,14 @@ export class SidePotCalculator{
         }
         let ignore = [];
         // pot_ranks [seat,seat,seat,...]
+        
+        /*
         const pot = simple.reduce((acc, e)=>{
             return acc + e.amount;
         },0);
+        */
+
+
         //console.log("The pot is",pot);
         let accum = 0;
 
@@ -101,7 +106,7 @@ export class SidePotCalculator{
             // reward them their amount and add them to ignore
             // use sidepots[]
             const k = Number.parseFloat(g);
-            const pot = k*sidepot_owner.length;
+            //const pot = k*sidepot_owner.length;
 
             //console.log("side pot owner player",sidepot_owner.map((v,i)=>{return sidepots[v].name}),"can win",pot,"and compete with",competetors);
             accum += pot;
@@ -198,7 +203,7 @@ function  SingleWinnerTestCase(){
         new Card(Color.Spades,Value.v_4),
         new Card(Color.Spades,Value.v_A),
     ];
-    const sidepots = SidePotCalculator.CalculateSidePots(player,center);
+    const sidepots = SidePotCalculator.CalculateSidePots(player,center, 1000);
     sidepots.forEach(v=>console.log(v.toString()));
 }
 function  CasinoRoyaleTestCase(){
@@ -281,11 +286,63 @@ function  CasinoRoyaleTestCase(){
     
     //console.log(sps);
     console.log("testing case: casino royale");
-    const sidepots = SidePotCalculator.CalculateSidePots(player,center);
+    const sidepots = SidePotCalculator.CalculateSidePots(player,center,1000);
     sidepots.forEach(v=>console.log(v.toString()));
 
 
 }
 
+function  testlossemoneypot(){
+    const player: Seat[] = [];
+
+    {
+        const p = new Seat(new Player("","Lind1"));
+        p.payment_in_round = 32;
+        p.name = "Lind1";
+        p.cards =  [
+            new Card(Color.Clubs,Value.v_K),
+            new Card(Color.Spades,Value.v_Q),
+        ];
+        player.push(p);
+
+        
+    }
+    {
+        const p = new Seat(new Player("","Hocko"));
+        p.payment_in_round = 32;
+        p.name = "Hocko";
+        p.cards =  [
+            new Card(Color.Spades,Value.v_6),
+            new Card(Color.Diamonds,Value.v_A),
+        ];
+        player.push(p);
+
+        
+    }
+    {
+        const p = new Seat(new Player("","Random"));
+        p.payment_in_round = 6;
+        p.name = "Random";
+        p.cards =  [
+            new Card(Color.Spades,Value.v_2),
+            new Card(Color.Diamonds,Value.v_7),
+        ];
+        player.push(p);
+
+        
+    }
+    const center = [
+        new Card(Color.Spades,Value.v_J),
+        new Card(Color.Hearts,Value.v_J),
+        new Card(Color.Spades,Value.v_4),
+        new Card(Color.Hearts,Value.v_5),
+        new Card(Color.Clubs,Value.v_3),
+    ];
+    
+    console.log("testing case: loose money");
+    const sidepots = SidePotCalculator.CalculateSidePots(player,center, 32+32+6);
+    sidepots.forEach(v=>console.log(v.toString()));
+}
+testlossemoneypot();
 //CasinoRoyaleTestCase();
 //SingleWinnerTestCase();

@@ -435,9 +435,10 @@ export class TableImpl extends TableBase implements ITable{
             this.Data.winner_pos = [pos];
             const sp  = new SidePot([seat],this.Data.pot,[seat]);
             this.Data.winner_pots = [new Winner_Client(sp,[pos])];
-            this.setMessage(seat.name + "wins by fold", sessid);
+            this.setMessage(seat.name + " wins by fold", sessid);
             seat.money+=this.Data.pot;
-
+            
+            // TODO 
             return;
         }
         for(const seat of vs){
@@ -448,7 +449,7 @@ export class TableImpl extends TableBase implements ITable{
             
         }
 
-        const sidePots = SidePotCalculator.CalculateSidePots(vs, this.cards_center);
+        const sidePots = SidePotCalculator.CalculateSidePots(vs, this.cards_center, this.Data.pot);
         
         
 
