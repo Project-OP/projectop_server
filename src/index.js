@@ -68,7 +68,6 @@ console.log(base,"webapp at "+static_folder);
 
 ws.getWss().on('connection', function(ws, req) {
   requestHandler.wsConn(ws,req);
-    //console.log("new heartbeat connection");
 });
 
 /*ws.getWss().on('close', function(ws, req) {

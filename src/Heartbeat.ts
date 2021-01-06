@@ -9,6 +9,7 @@ class Item{
     lastPing: number;
     ws: WebSocket;
     name: string;
+    flag = false;
 }
 
 export class Heartbeat{
@@ -94,6 +95,7 @@ export class Heartbeat{
 
     Beat(ws: WebSocket, req: Request, msg): void{
         const sess = req.session.id;
+
         this.UpdateHBPlayer(sess);
         this.check(ws, req, sess);
         
@@ -112,11 +114,12 @@ export class Heartbeat{
                     console.log(v);
                 })
                 
-                if (!this.wss[s]){
-                    console.log(`${s} not found!`);
+                if (!this.wss[s] ||this.wss[s].flag){
+                    console.log(`${s} flagged for removal found!`);
                     console.log("remove from wss:",p?.name);
 
                     this.NotifyDisconnect(s, "heartbeat socket closed on remote end");
+                    delete this.wss[s];
                     
     
                 }else{
@@ -129,7 +132,8 @@ export class Heartbeat{
             const e = req.session?.id;
             if (this.wss[e]){
                 ///MPlayer.Delete(e);
-                delete this.wss[e];
+                //delete 
+                this.wss[e].flag = true;
             }
             
         }catch(e){
@@ -158,6 +162,7 @@ export class Heartbeat{
                 //console.log("new session "+sess);
             }
             let v = -1;
+            e.flag = false;
             try{
                 const p = await MPlayer.BySessionId(sess);
                 v = this.room.Get(p.roomId).version;
