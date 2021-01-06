@@ -101,14 +101,24 @@ export class Heartbeat{
 
 
     async Close(ws: WebSocket, req: Request, msg): Promise<void>{
-        /*
+        
         try{
-            const p = req.session['player']?.sessId;
+            const p = req.session['player'];
+            const s = p?.sessId
+            console.log(`${p?.name} (${s}) closed remote end`);
             setTimeout(()=>{
-                if (!this.wss[p]){
-                    console.log("del",p,this.wss[p]);
+                console.log(`timeout for ${p?.name} (${s}) over`);
+                Object.keys(this.wss).forEach(v=>{
+                    console.log(v);
+                })
+                
+                if (!this.wss[s]){
+                    console.log(`${s} not found!`);
+                    console.log("remove from wss:",p?.name);
 
-                    this.NotifyDisconnect(p, "heartbeat socket closed on remote end");
+                    this.NotifyDisconnect(s, "heartbeat socket closed on remote end");
+                    
+    
                 }else{
                     console.log("player disconnected but reconnected with new ws");
                 }
@@ -117,17 +127,15 @@ export class Heartbeat{
             },10e3);
             
             const e = req.session?.id;
-            
-            if (e){
-                if (this.wss[e]){
-                    ///MPlayer.Delete(e);
-                    delete this.wss[e];
-                }
+            if (this.wss[e]){
+                ///MPlayer.Delete(e);
+                delete this.wss[e];
             }
+            
         }catch(e){
             ///console.trace(e);
         }      
-        */
+        
     }
 
 
