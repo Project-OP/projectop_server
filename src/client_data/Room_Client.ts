@@ -15,12 +15,15 @@ export class Room_Client{
     seats: Array<Player_Client> = [];
     msg = "";
     msg_cnt = -1;
+    version = 0;
+
     constructor(p: Player, r: MRoom){
 
 
         this.id = r.id;
         this.table = r.table.Data;
         let egoPos = -1;
+        this.version = r.version;
         r.seats.forEach( (v,i) =>{
             if (v != null){
                 const player = new Player_Client(p,v,r.alladmins || r.admins.includes(p.sessId),v.player == p.sessId);

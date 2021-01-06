@@ -3,6 +3,7 @@ import { Player } from "./data/Player";
 import { Heartbeat } from "./Heartbeat";
 import { MRoom } from "./MRoom";
 import { MRooms } from "./MRooms";
+import { WS, WSType, WSJsonMsg } from "./WS";
 
 
 
@@ -47,7 +48,7 @@ export class MPlayer{
     }
 
 
-    static Notify(sid: string, msg = "Update"): void{
+    static Notify(sid: string, msg: WSJsonMsg): void{
         if (!this.heartbeats){
             console.log("error, heartbeat is null");
         }else{
@@ -57,18 +58,11 @@ export class MPlayer{
 
             }else{
                 const ws = item.ws;
-                if (!ws){
-                    console.log("error, heartbeat ws is null");
-                }else{
-                    try{
-                        ws.send(msg);                    
-                    }catch(e){
-                        console.log()
-                    }
-    
-
-                }
-                
+                try{
+                    WS.SendJSON(ws, msg);                 
+                }catch(e){
+                    console.log("ws player send ",e);
+                }                
             }
         }
         

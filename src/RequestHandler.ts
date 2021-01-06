@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import { request, Request, Response } from "express";
 import { Room_Client } from "./client_data/Room_Client";
 import { Player } from "./data/Player";
 import { Heartbeat } from "./Heartbeat";
 import { IllegalOperationError } from "./IllegalOperationError";
 import { MRoom } from "./MRoom";
 import { MRooms } from "./MRooms";
+import { WS, WSType } from "./WS";
 
 export class RequestHandler{
     
@@ -18,6 +19,10 @@ export class RequestHandler{
         RequestHandler.Instance = this;
     }
 
+    public wsConn(ws: WebSocket, req: Request){
+        WS.Send(ws, WSType.HELLO);
+    }
+  
     
     async StartGame(sessid: string, r: MRoom): Promise<void>{
         

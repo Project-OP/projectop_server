@@ -2,6 +2,7 @@ import { Request, Response, Express } from 'express';
 import { Player } from './data/Player';
 import { MPlayer } from './MPlayer';
 import { MRooms } from './MRooms';
+import { WS, WSType } from './WS';
 
 
 class Item{
@@ -130,7 +131,7 @@ export class Heartbeat{
     Err(ws: WebSocket, req: Request, msg): void{
         console.log("err "+req.session.id);
         console.log(msg);
-        ws.send("err");
+        
 
     }
     public GetWS(sessid: string){
@@ -145,11 +146,17 @@ export class Heartbeat{
                 this.wss[sess] = e;
                 //console.log("new session "+sess);
             }
+            let v = -1;
+            try{
+                const p = await MPlayer.BySessionId(sess);
+                v = this.room.Get(p.roomId).version;
+            }catch(e){
+                // cannot get session or room
+            }
             e.ws = ws;
             e.lastPing = Date.now();
             //console.log("updating heartbeat");
-            
-            ws.send("pong");
+            WS.Send(ws, WSType.PONG, ""+v);
             //console.log("sending pong");
             
             

@@ -10,6 +10,7 @@ import { Card_Client } from "./client_data/Card_Client";
 import { Events } from "./Events";
 import { ITable } from "./interfaces/ITable";
 import { TableImpl } from "./Table/TableImpl";
+import { WSJsonMsg, WSType } from "./WS";
 
 export class MRoom{
 
@@ -29,6 +30,8 @@ export class MRoom{
 
     admins:Array<string> = [];
     alladmins = false;
+
+    version = 0;
 
     constructor(roomId: string,sessid: string){
 
@@ -95,7 +98,7 @@ export class MRoom{
     public NudgeTurn(){
         try{
             this.seats.filter(v=>v != null).forEach(v=>{
-                MPlayer.Notify(v.player, "Hey "+this.table.Data.player_turn);            
+                MPlayer.Notify(v.player, new WSJsonMsg(WSType.NUDGE.code, ""+this.table.Data.player_turn));            
             })
             
         }catch(e){
@@ -383,6 +386,7 @@ export class MRoom{
 
     }
     async NotifyClients(omit: string, skipSessionCheck = true): Promise<void>{
+        this.version++;
         //console.log("Updating all clients");
         /*
         try{
@@ -417,7 +421,7 @@ export class MRoom{
             */
             if (sid != omit){
                 // do not notify the cause of the change, only other observers
-                MPlayer.Notify(sid);
+                MPlayer.Notify(sid, new WSJsonMsg(WSType.UPDATE.code, ""+this.version));
             }
             
         }
