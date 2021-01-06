@@ -27,6 +27,7 @@ export class Room_Client{
         r.seats.forEach( (v,i) =>{
             if (v != null){
                 const player = new Player_Client(p,v,r.alladmins || r.admins.includes(p.sessId),v.player == p.sessId);
+                player.win = v.win;
                 this.seats.push(player);
                 if (v.player == p.sessId){
                     egoPos = i;

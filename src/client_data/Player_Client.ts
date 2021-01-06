@@ -15,7 +15,7 @@ export class Player_Client{
     empty: boolean;
     hand: Hand_Client;
     admin = false;
-
+    win = 0;
     static Empty(){
         const p = new Player("","");
         return new Player_Client(p,new Seat(p),false,false,true);

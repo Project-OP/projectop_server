@@ -38,6 +38,7 @@ export class Table{
     // winner, amount
     winner_pots: number[];
     winner_pos: Array<{seat:number, amount: number}>;
+    winner_cards: Array<Card_Client[]>;
 
     is_headsup = false; 
 

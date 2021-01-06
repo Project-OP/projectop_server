@@ -64,11 +64,13 @@ export class Card{
     color: Color;
     value: Value;
     visible: boolean;
+    hasWon = false;
     
     constructor(color: Color, value: Value){
         this.color = color;
         this.value = value;
         this.visible = false;
+        this.hasWon = false;
     }
     
     

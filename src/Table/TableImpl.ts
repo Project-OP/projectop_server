@@ -413,6 +413,7 @@ export class TableImpl extends TableBase implements ITable{
     
         this.Data.winner_pos = [];
         this.Data.winner_pots = [];
+        this.Data.winner_cards = [];
         this.setMessage("New round started",sessid);
 
 
@@ -448,9 +449,9 @@ export class TableImpl extends TableBase implements ITable{
             const [seat, pos]= this.getSeat(showdownplayer[0].player);
 
             this.Data.winner_pos = [{seat:pos,amount:seat.win}];
-            
-            
-            this.setMessage(seat.name + " wins by fold", sessid);
+            seat.win = this.Data.pot;
+
+            this.setMessage(seat.name + " wins "+this.Data.pot+" by fold", sessid);
             seat.money += this.Data.pot;
             
             return;
@@ -471,13 +472,18 @@ export class TableImpl extends TableBase implements ITable{
         
         let msg = "";
         this.Data.winner_pos = [];
-        const w = winners.forEach(v=>{
+        winners.forEach(v=>{
             const [seat, pos] = this.getSeat(v.player);
             const r = {seat:pos, amount: v.win};
             this.Data.winner_pos.push(r);
-            msg+=`${seat.name} wins ${seat.win} with ${seat.hand.HandType.info} \n`;
-
+            msg+=`${seat.name} wins ${seat.win} with ${seat.hand.HandType.info} ${seat.hand.cards.toString()} \n`;
+            this.Data.winner_cards.push(Card_Client.From(v.hand.cards));
+            v.hand.cards.forEach(c=>{
+                c.hasWon = true;
+            })
         });
+
+
 
         
         
