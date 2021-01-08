@@ -143,6 +143,12 @@ app.get('/game/id/:uuid', (req, res) => {
      
 })
 
+app.get('/version', (req, res) => {
+
+  res.send(pjson);
+
+})
+
 app.get('/game/id/:uuid/notifyactive/', (req, res) => {
   const id = req.params.uuid;
   console.log("recv nudge");
