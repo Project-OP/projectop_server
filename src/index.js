@@ -3,7 +3,7 @@ var path = require('path');
 
 import {MRooms} from "./MRooms";
 import {MPlayer, InitMPlayer} from "./MPlayer";
-
+const pjson = require ('../package.json').version;
 const session = require("express-session");
 
 import * as crypto from "crypto";
@@ -414,7 +414,7 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(port, () => {
-  console.log(`app listening at http://0.0.0.0:${port}`)
+  console.log(`${pjson} listening at http://0.0.0.0:${port}`)
 })
 
 function sanitizeName(req, res){
