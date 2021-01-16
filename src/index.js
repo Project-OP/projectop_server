@@ -160,6 +160,16 @@ app.get('/game/id/:uuid/notifyactive/', (req, res) => {
 })
 
 
+app.get('/game/id/:uuid/reveal/:visible', (req, res) => {
+  const id = req.params.uuid;
+  const v = req.params.visible.toLocaleLowerCase()  == "true";
+  const room = requestHandler.GetRoom(id);
+  let player = getPlayer(req,res,true);
+  requestHandler.RevealCards(player, v);
+  const roominfo = room.RoomInfo(player);
+  res.send(roominfo);
+
+})
 
 app.get('/game/id/:uuid/join/:name', (req, res) => {
   const id = req.params.uuid;

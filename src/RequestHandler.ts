@@ -40,6 +40,11 @@ export class RequestHandler{
         }
     }
 
+    RevealCards(player: Player, visible: boolean){
+        const room = this.rooms.Get(player.roomId);
+        room.RevealCards(player.sessId, visible);
+    }
+
     async Turn(sessid: string, rid: string, t: string, amount: string): Promise<MRoom>{
         const room = this.GetRoom(rid);
         await room.Turn(sessid,t, amount);

@@ -133,6 +133,16 @@ export class MRoom{
 
     }
 
+
+    public RevealCards(sessid:string, visible: boolean){
+        const [seat, num] = this.Table.getSeat(sessid);
+        seat.cards.forEach(v=>{
+            v.visible = true;
+        });
+        this.NotifyClients(sessid);
+
+    }
+
     public checkAdmin(sessid:string){
         if (!this.IsAdmin(sessid)){
             throw new IllegalOperationError("Cannot perform admin operation","you are not an admin!");
