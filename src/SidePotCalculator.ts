@@ -109,13 +109,14 @@ export class SidePotCalculator{
             winners.forEach(v=>{
                 //cashback = v.payment_in_round/losers.length;
                 cashout = sidepot/win_div; 
-                v.money += cashout;
+                v.money += Math.floor(cashout); // TODO POT RECASH
 
             });
             //const s = new SidePot(winners, cashout, Array.from(payers));
 
             winners.forEach(v=>{
-                v.win += cashout;
+                const w = Math.floor(cashout); // TODO POT RECASH
+                v.win += w;
             });
             payers.forEach(v=>{
                 v.payment_in_round -= win_max;
