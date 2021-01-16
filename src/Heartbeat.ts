@@ -108,6 +108,7 @@ export class Heartbeat{
             const p = req.session['player'];
             const s = p?.sessId
             console.log(`${p?.name} (${s}) closed remote end`);
+            /*
             setTimeout(()=>{
                 console.log(`timeout for ${p?.name} (${s}) over`);
                 Object.keys(this.wss).forEach(v=>{
@@ -128,6 +129,7 @@ export class Heartbeat{
                 
                 
             },10e3);
+            */
             
             const e = req.session?.id;
             if (this.wss[e]){
