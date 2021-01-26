@@ -6,6 +6,7 @@
   "scripts": {
     "test": "nodemon --watch ./src/CardSolver.ts --exec npx ts-node src/CardSolver.ts",
     "compile": "npm version patch && tsc",
+    "compile-nv": "tsc",
     "watch": "nodemon -e js,ts watch",
     "production": "node build/index.js"
   },
