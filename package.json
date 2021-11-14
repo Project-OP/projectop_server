@@ -8,7 +8,8 @@
     "compile": "npm version patch && tsc",
     "compile-nv": "tsc",
     "watch": "nodemon -e js,ts watch",
-    "production": "node build/index.js"
+    "production": "node build/index.js",
+    "dockerize": "dockerize.bat"
   },
   "keywords": [],
   "author": "",

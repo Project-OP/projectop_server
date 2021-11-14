@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:17-alpine
 
 COPY ./build /server/build
 COPY ./*.json ./server/
