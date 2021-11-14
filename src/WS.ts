@@ -13,7 +13,13 @@ export class WS{
     }
     public static async SendJSON(ws: WebSocket, json: WSJsonMsg): Promise<void>{
         WS.check(ws);
-        ws.send(JSON.stringify(json));
+        try{
+            ws.send(JSON.stringify(json));
+        }catch(err){
+            // TODO: handle error
+            console.error(err);
+
+        }
     }
 
     public static async Recv(msg: string): Promise<WSJsonMsg>{
