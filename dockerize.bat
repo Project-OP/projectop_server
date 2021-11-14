@@ -1,2 +1,3 @@
-docker build -t hockoloco/projectop/projectop .
+docker login
+docker build -t hockoloco/projectop .
 docker push hockoloco/projectop:latest
