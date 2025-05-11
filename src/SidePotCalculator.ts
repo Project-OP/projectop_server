@@ -39,9 +39,12 @@ export class SidePotCalculator {
 
     hands.forEach((v) => {
       v.owner.hand = v;
-      v.owner = null;
+      //v.owner = null;
     });
-
+    hands.forEach((v) => {
+      console.log("hands", v.toString())
+    });
+    
     let previousContribution = 0;
 
     while (payers.length > 0) {
@@ -171,6 +174,6 @@ function testcomplexpot() {
 }
 
 // Run the test case
-testcomplexpot();
+//testcomplexpot();
 //CasinoRoyaleTestCase();
 //SingleWinnerTestCase();

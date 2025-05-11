@@ -55,6 +55,9 @@ export class Value{
         return [Value.v_2,Value.v_3,Value.v_4,Value.v_5,Value.v_6,Value.v_7,Value.v_8,Value.v_9,Value.v_10,Value.v_J,Value.v_Q,Value.v_K,Value.v_A];
     }
 
+    toString():string {
+        return this.name;
+    }
 }
 
 
@@ -85,6 +88,12 @@ export class Card{
         
         return this.color.short+this.value.short;
     }
+    toJSON(): object {
+        return {
+            "c": this.color.short,
+            "v": this.value.short
+        };
+    }
 
     static GetComparator(acelow = false):(a: Card,b: Card)=>number{
         
@@ -96,6 +105,7 @@ export class Card{
             return vb-va;
         }
     }
+
 
 
 }
